@@ -1,3 +1,3 @@
-module git.code.oa.com/asw/AswTemplateSvr
+module github.com/jacks808/xerror
 
 go 1.13
