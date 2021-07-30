@@ -17,17 +17,22 @@ func Handle(ctx context.Context, err *error, handlers []ErrorHandler) {
 }
 
 // handler panic via responsibility chain
-func handle(ctx context.Context, err *error, handlers []ErrorHandler, r interface{}) {
-	if r != nil {
+func handle(ctx context.Context, err *error, handlers []ErrorHandler, recovered interface{}) {
+	// got recovered value
+	if recovered != nil {
+		// ask each handler
 		for _, handler := range handlers {
-			if !handler.Match(ctx, r) {
+			// if doesn't match, continue
+			if !handler.Match(ctx, recovered) {
 				continue
 			}
-			if stop := handler.Handle(ctx, r); stop {
-				*err = handler.ConvertToError(ctx, r)
+			// if match, call handler.ConvertToError to convert recovered to err.
+			if stop := handler.Handle(ctx, recovered); stop {
+				*err = handler.ConvertToError(ctx, recovered)
 				return
 			}
 		}
-		panic(r)
+		// panic if none of one handlers could handle your error
+		panic(recovered)
 	}
 }

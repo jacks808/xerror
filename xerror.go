@@ -19,6 +19,7 @@ type Xerror struct {
 }
 
 // register a new error handler
+// each project should call this function when program start.
 func Register(h ErrorHandler) {
 	mutex.Lock()
 	defer mutex.Unlock()
@@ -32,22 +33,22 @@ func Register(h ErrorHandler) {
 type ErrorHandler interface {
 	// Match function
 	// this function should judge panic value i is match or not
-	// param: ctx context
-	// param: `i` value get from recover()
-	// return match: if return match, xerror will call Handle function
-	Match(ctx context.Context, i interface{}) (match bool)
+	// param ctx:       context
+	// param recovered: value get from recover()
+	// return match:    if return match, xerror will call Handle function
+	Match(ctx context.Context, recovered interface{}) (match bool)
 
 	// Handle function
 	// this function should handle error, e.g. send alert, write error log, send matrix etc.
-	// param: ctx context
-	// param: i value get from recover()
-	// return stop: if stop, then handle chain, xerror will call ConvertToError function.
-	Handle(ctx context.Context, i interface{}) (stop bool)
+	// param ctx:       context
+	// param recovered: value get from recover()
+	// return stop:     if stop, then handle chain, xerror will call ConvertToError function.
+	Handle(ctx context.Context, recovered interface{}) (stop bool)
 
 	// ConvertToError function
 	// this function convert your error to error
-	// param: ctx context
-	// param: i value get from recover()
-	// return error: return an error.
-	ConvertToError(ctx context.Context, i interface{}) error
+	// param ctx:       context
+	// param recovered: value get from recover()
+	// return error:    return an error.
+	ConvertToError(ctx context.Context, recovered interface{}) error
 }
